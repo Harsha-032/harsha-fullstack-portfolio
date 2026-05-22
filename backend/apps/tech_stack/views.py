@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from .models import TechStack
+from .serializers import TechStackSerializer
+
+
+class TechStackListAPIView(generics.ListAPIView):
+    queryset = TechStack.objects.all()
+    serializer_class = TechStackSerializer
