@@ -9,6 +9,10 @@ urlpatterns = [
         'api/portfolio-items/',
         include('apps.portfolio_items.urls'),
     ),
+    path(
+        'api/tech-stack/',
+        include('apps.tech_stack.urls'),
+    ),
 ]
 
 if settings.DEBUG:

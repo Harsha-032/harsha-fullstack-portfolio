@@ -1,3 +1,20 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import TechStack
+
+
+@admin.register(TechStack)
+class TechStackAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'category',
+        'proficiency',
+    )
+
+    list_filter = (
+        'category',
+    )
+
+    search_fields = (
+        'name',
+    )
