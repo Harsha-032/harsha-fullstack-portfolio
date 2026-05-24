@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'ckeditor',
+    'drf_spectacular',
+    'django_filters',
 
     # Local apps
     'apps.portfolio_items',
@@ -135,3 +137,24 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': (
+        'drf_spectacular.openapi.AutoSchema'
+    ),
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Harsha Portfolio API',
+    'DESCRIPTION': (
+        'Full-stack portfolio backend APIs built with '
+        'Django REST Framework'
+    ),
+    'VERSION': '1.0.0',
+}
