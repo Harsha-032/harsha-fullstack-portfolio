@@ -3,11 +3,17 @@ from ckeditor.fields import RichTextField
 
 
 class PortfolioItem(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(
+        max_length=100,
+        blank=False
+    )
     description = RichTextField()
-    tech_stack = models.CharField(max_length=255)
+    tech_stack = models.CharField(
+        max_length=255,
+        blank=False
+    )
 
-    github_url = models.URLField()
+    github_url = models.URLField(blank=False)
     live_url = models.URLField(blank=True)
 
     image = models.ImageField(
