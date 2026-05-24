@@ -1,7 +1,9 @@
 function HeroSection() {
   return (
-    <section className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
+    <section
+      id="home"
+      className="min-h-screen flex items-center justify-center"
+    >      <div className="text-center">
         <p className="text-blue-400 mb-4 text-lg">
           Full Stack Developer
         </p>
