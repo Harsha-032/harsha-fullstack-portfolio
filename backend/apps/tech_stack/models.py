@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator
 
 
 class TechStack(models.Model):
@@ -17,7 +18,10 @@ class TechStack(models.Model):
         choices=CATEGORY_CHOICES
     )
 
-    proficiency = models.PositiveIntegerField(default=80)
+    proficiency = models.PositiveIntegerField(
+        default=80,
+        validators=[MaxValueValidator(100)]
+    )
 
     icon = models.ImageField(
         upload_to='tech_stack/',
