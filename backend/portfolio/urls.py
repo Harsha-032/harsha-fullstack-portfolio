@@ -18,6 +18,10 @@ urlpatterns = [
         include('apps.tech_stack.urls'),
     ),
     path(
+        'api/profile/',
+        include('apps.profiles.urls'),
+    ),
+    path(
         'api/schema/',
         SpectacularAPIView.as_view(),
         name='schema',
