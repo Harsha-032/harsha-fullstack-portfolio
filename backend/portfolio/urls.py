@@ -34,6 +34,10 @@ urlpatterns = [
         ),
         name='swagger-ui',
     ),
+    path(
+        'api/experiences/',
+        include('apps.experiences.urls'),
+    ),
 ]
 
 if settings.DEBUG:
