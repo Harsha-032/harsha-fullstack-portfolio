@@ -38,6 +38,10 @@ urlpatterns = [
         'api/experiences/',
         include('apps.experiences.urls'),
     ),
+    path(
+        'api/social-links/',
+        include('apps.social_links.urls'),
+    ),
 ]
 
 if settings.DEBUG:
