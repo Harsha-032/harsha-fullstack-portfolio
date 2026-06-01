@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.inquiries',
     'apps.profiles',
     'apps.experiences',
+    'apps.social_links',
 ]
 
 MIDDLEWARE = [

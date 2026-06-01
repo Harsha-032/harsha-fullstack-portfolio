@@ -22,3 +22,12 @@ class PortfolioItemListAPIView(generics.ListAPIView):
         'title',
         'created_at',
     ]
+
+class PortfolioItemDetailAPIView(
+    generics.RetrieveAPIView
+):
+    queryset = PortfolioItem.objects.all()
+
+    serializer_class = PortfolioItemSerializer
+
+    lookup_field = 'slug'

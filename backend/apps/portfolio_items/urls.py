@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PortfolioItemListAPIView
+from .views import *
 
 
 urlpatterns = [
@@ -8,5 +8,10 @@ urlpatterns = [
         '',
         PortfolioItemListAPIView.as_view(),
         name='portfolio-item-list',
+    ),
+    path(
+        '<slug:slug>/',
+        PortfolioItemDetailAPIView.as_view(),
+        name='portfolio-item-detail',
     ),
 ]
