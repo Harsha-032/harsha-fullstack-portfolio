@@ -5,14 +5,13 @@ import Navbar from '../components/common/Navbar'
 import Footer from '../components/common/Footer'
 
 function RootLayout() {
-  // Centralized profile fetch to prevent redundant API calls across pages
   const { data: profile, loading: loadingProfile } = useApi(getProfile, true, null)
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col selection:bg-zinc-800 selection:text-white">
+    <div className="relative min-h-screen text-white flex flex-col selection:bg-[#7c3aed] selection:text-white">
       <Navbar profile={profile} />
       
-      <main className="flex-grow pt-20">
+      <main className="flex-grow">
         <Outlet context={{ profile, loadingProfile }} />
       </main>
       
@@ -22,4 +21,3 @@ function RootLayout() {
 }
 
 export default RootLayout
-
