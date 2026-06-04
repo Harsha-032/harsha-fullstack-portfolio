@@ -15,7 +15,11 @@ class Profile(models.Model):
         max_length=30,
         blank=True
     )
-    resume_url = models.URLField(blank=True)
+    resume_url = models.FileField(
+        upload_to='resumes/',
+        blank=True,
+        null=True
+    )
     profile_photo = models.ImageField(
         upload_to='profiles/',
         blank=True,
