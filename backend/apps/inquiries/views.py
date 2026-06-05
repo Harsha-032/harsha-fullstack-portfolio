@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from .models import Inquiry
+from .serializers import InquirySerializer
+
+
+class InquiryCreateAPIView(generics.CreateAPIView):
+    queryset = Inquiry.objects.all()
+    serializer_class = InquirySerializer
