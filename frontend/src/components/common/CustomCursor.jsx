@@ -1,81 +1,199 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, useRef } from "react";
+import { motion, useMotionValue, useSpring, useVelocity, useTransform, AnimatePresence } from "framer-motion";
+
+import { audio } from "../../lib/audio";
+import { useTheme } from "../../lib/theme";
 
 export default function CustomCursor() {
-  const cursorRef = useRef(null)
-  const followerRef = useRef(null)
-  const [hovering, setHovering] = useState(false)
-  const pos = useRef({ x: 0, y: 0 })
-  const followerPos = useRef({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = useState(false);
+  const [cursorText, setCursorText] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
+  const { activeTheme } = useTheme();
+
+  const isHoveredRef = useRef(isHovered);
 
   useEffect(() => {
-    // Only on desktop
-    if ('ontouchstart' in window) return
+    isHoveredRef.current = isHovered;
+  }, [isHovered]);
 
-    const onMove = (e) => {
-      pos.current = { x: e.clientX, y: e.clientY }
-    }
+  // Motion values
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
 
-    const onEnterInteractive = () => setHovering(true)
-    const onLeaveInteractive = () => setHovering(false)
+  // Springs for smooth physics
+  const smoothX = useSpring(mouseX, { damping: 30, stiffness: 400, mass: 0.5 });
+  const smoothY = useSpring(mouseY, { damping: 30, stiffness: 400, mass: 0.5 });
 
-    document.addEventListener('mousemove', onMove)
+  const slowX = useSpring(mouseX, { damping: 50, stiffness: 150, mass: 1.5 });
+  const slowY = useSpring(mouseY, { damping: 50, stiffness: 150, mass: 1.5 });
 
-    // Observe interactive elements
-    const interactiveEls = document.querySelectorAll('a, button, [role="button"], input, textarea')
-    interactiveEls.forEach((el) => {
-      el.addEventListener('mouseenter', onEnterInteractive)
-      el.addEventListener('mouseleave', onLeaveInteractive)
-    })
+  const trailingX = useSpring(mouseX, { damping: 60, stiffness: 100, mass: 2 });
+  const trailingY = useSpring(mouseY, { damping: 60, stiffness: 100, mass: 2 });
 
-    let raf
-    const animate = () => {
-      followerPos.current.x += (pos.current.x - followerPos.current.x) * 0.12
-      followerPos.current.y += (pos.current.y - followerPos.current.y) * 0.12
+  // Velocity for rotation effects
+  const xVel = useVelocity(mouseX);
+  const rotation = useTransform(xVel, [-1000, 1000], [-90, 90]);
+  const counterRotation = useTransform(rotation, r => -r);
+  const skewX = useTransform(xVel, [-1000, 1000], [-15, 15]);
 
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate(${pos.current.x - 4}px, ${pos.current.y - 4}px)`
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Enable only on desktop
+      if (window.innerWidth < 1024) {
+        if (isVisible) setIsVisible(false);
+        return;
       }
-      if (followerRef.current) {
-        followerRef.current.style.transform = `translate(${followerPos.current.x - 20}px, ${followerPos.current.y - 20}px)`
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+      if (!isVisible) setIsVisible(true);
+    };
+
+    const handleMouseLeave = () => setIsVisible(false);
+    const handleMouseEnter = () => setIsVisible(true);
+    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseUp = () => setIsClicking(false);
+
+    const handleOver = (e) => {
+      const target = e.target;
+      if (!target) return;
+
+      const interactive = target.closest("[data-cursor]");
+      if (interactive) {
+        if (!isHoveredRef.current) audio.playHover();
+        setIsHovered(true);
+        const text = interactive.getAttribute("data-cursor-text") || "";
+        setCursorText(text);
+      } else {
+        // Fallback for standard clickable items
+        const isClickable = target.closest("button, a, input, select, textarea, [role='button']");
+        if (isClickable) {
+          if (!isHoveredRef.current) audio.playHover();
+          setIsHovered(true);
+          setCursorText("");
+        } else {
+          setIsHovered(false);
+          setCursorText("");
+        }
       }
-      raf = requestAnimationFrame(animate)
-    }
-    animate()
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("mouseover", handleOver);
 
     return () => {
-      document.removeEventListener('mousemove', onMove)
-      interactiveEls.forEach((el) => {
-        el.removeEventListener('mouseenter', onEnterInteractive)
-        el.removeEventListener('mouseleave', onLeaveInteractive)
-      })
-      cancelAnimationFrame(raf)
-    }
-  }, [])
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseenter", handleMouseEnter);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mouseover", handleOver);
+    };
+  }, [mouseX, mouseY, isVisible]);
 
-  // Don't render on touch devices
-  if (typeof window !== 'undefined' && 'ontouchstart' in window) return null
+  if (!isVisible) return null;
 
   return (
-    <>
-      {/* Inner dot */}
-      <div
-        ref={cursorRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-white z-[9998] pointer-events-none mix-blend-difference"
-        style={{ willChange: 'transform' }}
-      />
-      {/* Outer follower */}
-      <div
-        ref={followerRef}
-        className="fixed top-0 left-0 w-10 h-10 rounded-full border border-white/30 z-[9997] pointer-events-none mix-blend-difference transition-[width,height,border-color] duration-300 ease-out"
+    <div className="pointer-events-none fixed inset-0 z-[99999]">
+      
+      {/* 1. Trailing Outer Star (Slowest) */}
+      <motion.div
+        className="absolute top-0 left-0 flex items-center justify-center"
         style={{
-          willChange: 'transform',
-          width: hovering ? '56px' : '40px',
-          height: hovering ? '56px' : '40px',
-          borderColor: hovering ? 'rgba(124, 58, 237, 0.6)' : 'rgba(255,255,255,0.3)',
-          marginLeft: hovering ? '-8px' : '0px',
-          marginTop: hovering ? '-8px' : '0px',
+          x: trailingX,
+          y: trailingY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: isHovered ? 48 : 40,
+          height: isHovered ? 48 : 40,
+          rotate: rotation,
         }}
-      />
-    </>
-  )
+        animate={{ scale: isClicking ? 0.8 : 1, opacity: isHovered ? 0.3 : 0.15 }}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-2xl" style={{ fill: activeTheme.sky.start, opacity: 0.5 }}>
+           {/* Beautiful curved 4-point star */}
+           <path d="M50 0C50 27.6142 72.3858 50 100 50C72.3858 50 50 72.3858 50 100C50 72.3858 27.6142 50 0 50C27.6142 50 50 27.6142 50 0Z"/>
+        </svg>
+      </motion.div>
+
+      {/* 2. Middle Counter-Rotating Star (Medium Slow) */}
+      <motion.div
+        className="absolute top-0 left-0 flex items-center justify-center backdrop-blur-[1px]"
+        style={{
+          x: slowX,
+          y: slowY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: isHovered ? 30 : 25,
+          height: isHovered ? 30 : 25,
+          rotate: counterRotation, // Counter-rotate relative to the outer star
+        }}
+        animate={{ scale: isClicking ? 0.8 : 1, opacity: isHovered ? 0.6 : 0.2 }}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full" style={{ fill: activeTheme.sky.start }}>
+           <path d="M50 5C50 29 71 50 95 50C71 50 50 71 50 95C50 71 29 50 5 50C29 50 50 29 50 5Z"/>
+        </svg>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`absolute rounded-full filter blur-[15px] opacity-30 w-full h-full`}
+            style={{ backgroundColor: activeTheme.sky.start }}
+          />
+        )}
+      </motion.div>
+
+      {/* 3. Core Physics Halo (Follows smoothed mouse) */}
+      <motion.div
+        className="absolute top-0 left-0 rounded-full flex items-center justify-center border"
+        style={{
+          x: smoothX,
+          y: smoothY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: isHovered ? 24 : 18,
+          height: isHovered ? 24 : 18,
+          skewX,
+          borderColor: isHovered ? activeTheme.sky.start : activeTheme.river.color,
+          backgroundColor: isHovered ? `${activeTheme.sky.start}1A` : 'transparent',
+          boxShadow: isHovered ? `0 0 15px ${activeTheme.sky.start}66` : 'none',
+        }}
+        animate={{ scale: isClicking ? 0.7 : 1 }}
+      >
+        <AnimatePresence>
+          {cursorText && (
+            <motion.span 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className={`absolute -bottom-6 whitespace-nowrap text-[8px] tracking-[0.3em] font-bold font-mono uppercase text-center ${activeTheme.ui.accent}`}
+            >
+              {cursorText}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* 4. Sharp Center Dot (Instantly follows raw mouse) */}
+      <motion.div
+        className="absolute top-0 left-0 flex items-center justify-center pointer-events-none"
+        style={{
+          x: mouseX,
+          y: mouseY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: isHovered ? 6 : 4,
+          height: isHovered ? 6 : 4,
+        }}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full" style={{ fill: isHovered ? '#FFFFFF' : activeTheme.sky.start }}>
+           <path d="M50 0C50 27.6142 72.3858 50 100 50C72.3858 50 50 72.3858 50 100C50 72.3858 27.6142 50 0 50C27.6142 50 50 27.6142 50 0Z"/>
+        </svg>
+      </motion.div>
+    </div>
+  );
 }

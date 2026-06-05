@@ -108,3 +108,16 @@ export const getTechStack = async ({
     throw error
   }
 }
+
+/**
+ * Submit a new inquiry/contact message.
+ */
+export const submitInquiry = async (data) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/inquiries/`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error submitting inquiry:', error)
+    throw error
+  }
+}

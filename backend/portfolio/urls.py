@@ -42,6 +42,10 @@ urlpatterns = [
         'api/social-links/',
         include('apps.social_links.urls'),
     ),
+    path(
+        'api/inquiries/',
+        include('apps.inquiries.urls'),
+    ),
 ]
 
 if settings.DEBUG:

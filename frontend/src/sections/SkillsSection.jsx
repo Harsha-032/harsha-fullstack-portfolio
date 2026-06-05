@@ -1,186 +1,135 @@
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { FaPython, FaReact, FaDocker, FaGitAlt, FaDatabase, FaJs, FaServer } from 'react-icons/fa'
-import { SiDjango, SiPostgresql } from 'react-icons/si'
-import gsap from 'gsap'
+import React, { useRef, useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { Droplets, ArrowRightLeft, Percent, Activity, Box, Terminal, Cloud } from "lucide-react";
+import { useTheme } from "../lib/theme";
 
-const iconMap = {
-  python: <FaPython size={22} />,
-  react: <FaReact size={22} />,
-  docker: <FaDocker size={22} />,
-  git: <FaGitAlt size={22} />,
-  django: <SiDjango size={22} />,
-  postgresql: <SiPostgresql size={22} />,
-  javascript: <FaJs size={22} />,
-  default: <FaServer size={22} />,
-}
+export default function SkillsSection({ techStack = [] }) {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const containerRef = useRef(null);
+  const { activeTheme } = useTheme();
 
-function getIcon(name) {
-  const key = name?.toLowerCase().replace(/\s/g, '')
-  return iconMap[key] || iconMap.default
-}
+  const getIconForCategory = (categoryName) => {
+    const lower = categoryName.toLowerCase();
+    if (lower.includes("frontend") || lower.includes("ui") || lower.includes("design")) return Droplets;
+    if (lower.includes("backend") || lower.includes("api") || lower.includes("server")) return ArrowRightLeft;
+    if (lower.includes("cloud") || lower.includes("devops") || lower.includes("infra")) return Cloud;
+    if (lower.includes("tool") || lower.includes("misc")) return Terminal;
+    return Box;
+  };
 
-export default function SkillsSection({ skills = [], loading }) {
-  const [activeCategory, setActiveCategory] = useState('all')
-  const sectionRef = useRef(null)
-  const isInView = useInView(sectionRef, { once: true, margin: '-100px' })
+  const rolesData = useMemo(() => {
+    // Group tech stack by category
+    const grouped = {};
+    techStack.forEach(tech => {
+      const cat = tech.category?.name || "Other";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(tech.name);
+    });
 
-  const categories = [
-    { id: 'all', label: 'All' },
-    { id: 'frontend', label: 'Frontend' },
-    { id: 'backend', label: 'Backend' },
-    { id: 'database', label: 'Database' },
-    { id: 'tools', label: 'DevOps' },
-    { id: 'cloud', label: 'Cloud' },
-  ]
+    return Object.keys(grouped).map((catName) => ({
+      name: catName,
+      category: "Proficiency",
+      icon: getIconForCategory(catName),
+      desc: `Specialized tools and technologies within the ${catName} ecosystem.`,
+      details: grouped[catName].slice(0, 4) // Show top 4 items in the list
+    }));
+  }, [techStack]);
 
-  const filteredSkills = activeCategory === 'all'
-    ? skills
-    : skills.filter((s) => s.category === activeCategory)
-
-  return (
-    <section ref={sectionRef} className="relative py-32 px-6 md:px-12">
-      {/* Section ambient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div>
-            <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#7c3aed] mb-4 block">
-              Capabilities
-            </span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-[-0.03em] text-white">
-              Skills &{' '}
-              <span className="gradient-text-accent">Stack</span>
-            </h2>
-          </div>
-
-          {/* Filter pills */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`relative px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 cursor-pointer ${
-                  activeCategory === cat.id
-                    ? 'text-white'
-                    : 'text-zinc-500 hover:text-zinc-300 border border-white/[0.06] hover:border-white/10'
-                }`}
-              >
-                {activeCategory === cat.id && (
-                  <motion.div
-                    layoutId="skill-pill"
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6]"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">{cat.label}</span>
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Skills Grid */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-44 rounded-2xl bg-white/[0.02] border border-white/[0.04] animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <AnimatePresence mode="popLayout">
-              {filteredSkills.map((skill, i) => (
-                <SkillCard key={skill.id} skill={skill} index={i} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </div>
-    </section>
-  )
-}
-
-function SkillCard({ skill, index }) {
-  const cardRef = useRef(null)
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    const rotateX = ((y - centerY) / centerY) * -5
-    const rotateY = ((x - centerX) / centerX) * 5
-
-    gsap.to(cardRef.current, {
-      rotateX, rotateY,
-      duration: 0.3,
-      ease: 'power2.out',
-      transformPerspective: 800,
-    })
-  }
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return
-    gsap.to(cardRef.current, {
-      rotateX: 0, rotateY: 0,
-      duration: 0.5,
-      ease: 'elastic.out(1, 0.5)',
-    })
+  if (!rolesData.length) {
+    rolesData.push({
+      name: "Development Stack",
+      category: "General",
+      icon: Box,
+      desc: "Loading tools and technologies...",
+      details: ["Pending"]
+    });
   }
 
   return (
-    <motion.div
-      ref={cardRef}
-      layout
-      initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, scale: 0.9, filter: 'blur(8px)' }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="group relative rounded-2xl border border-white/[0.04] bg-[#0d0d0d] p-6 flex flex-col justify-between min-h-[180px] overflow-hidden cursor-default gradient-border"
-      style={{ willChange: 'transform' }}
+    <section 
+      id="skills-section" 
+      ref={containerRef}
+      className="relative min-h-[100dvh] w-full flex flex-col justify-start py-24 text-white overflow-hidden bg-transparent"
     >
-      {/* Hover glow */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#7c3aed]/[0.03] to-[#22d3ee]/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      <div className="relative z-10 flex items-start justify-between">
-        <div className="text-zinc-600 group-hover:text-[#8b5cf6] transition-colors duration-400">
-          {getIcon(skill.name)}
-        </div>
-        <span className="text-[10px] font-semibold tracking-wider text-zinc-600 bg-white/[0.03] px-2 py-1 rounded-full">
-          {skill.proficiency}%
-        </span>
+      <div className="absolute inset-0 z-0 pointer-events-none select-none">
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-10" 
+          style={{ backgroundColor: activeTheme.sky.start }} 
+        />
       </div>
 
-      <div className="relative z-10 mt-auto">
-        <h3 className="text-base font-semibold text-white tracking-tight">
-          {skill.name}
-        </h3>
-        <span className="text-[11px] text-zinc-600 capitalize mt-1 block">
-          {skill.category}
-        </span>
-        
-        {/* Proficiency bar */}
-        <div className="mt-3 h-[2px] w-full bg-white/[0.04] rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-[#7c3aed] to-[#22d3ee] rounded-full"
-            initial={{ width: 0 }}
-            whileInView={{ width: `${skill.proficiency}%` }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2, delay: 0.3 + index * 0.05, ease: [0.16, 1, 0.3, 1] }}
-          />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ margin: "0px 0px -100px 0px", once: false }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 w-full flex flex-col justify-between flex-1 px-6 sm:px-12 md:px-16"
+      >
+        <div className="text-center pt-2 select-none">
+          <span className={`font-sans text-[10px] font-bold uppercase tracking-[0.4em] ${activeTheme.ui.badgeText} ${activeTheme.ui.badgeBg} border ${activeTheme.ui.badgeBorder} rounded-full px-5 py-1.5 backdrop-blur-md`}>
+            TECH STACK
+          </span>
         </div>
-      </div>
-    </motion.div>
-  )
+
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center flex-1 my-6">
+          <div className="lg:col-span-12 flex flex-col items-center justify-center relative min-h-[360px] sm:min-h-[440px]">
+            <motion.div 
+              className="w-full relative flex items-center justify-center select-none flex-col mt-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full px-4">
+                {rolesData.map((role, idx) => {
+                  const rx = Math.sin((idx + 5) * 17.5) * 150;
+                  const ry = Math.cos((idx + 4) * 9.2) * 150;
+                  return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: rx, y: ry, scale: 0.9 }}
+                    whileInView={{ opacity: 1, x: 0, y: 0, scale: activeIdx === idx ? 1.05 : 1 }}
+                    viewport={{ once: false, margin: "0px 0px -100px 0px" }}
+                    transition={{ duration: 0.8, delay: idx * 0.1, type: "spring", bounce: 0.3 }}
+                    onMouseEnter={() => setActiveIdx(idx)}
+                    className={`relative p-6 rounded-2xl border transition-all duration-300 cursor-pointer backdrop-blur-sm overflow-hidden flex flex-col gap-4 ${
+                      activeIdx === idx 
+                        ? "border-white/20 bg-white/10 shadow-xl shadow-black/50" 
+                        : "border-white/5 bg-white/5 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="absolute inset-0 z-0 bg-gradient-to-br opacity-20 pointer-events-none" style={{ backgroundImage: `linear-gradient(to bottom right, ${activeTheme.sky.start}, transparent)` }} />
+                    <div className="relative z-10 flex gap-4 items-center border-b border-white/10 pb-4">
+                      <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center shadow-inner">
+                        <role.icon className={`w-5 h-5 ${activeTheme.ui.accent}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-serif text-xl font-bold tracking-tight text-white mb-0.5">{role.name}</h4>
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-[#a0a0ab]">{role.category}</span>
+                      </div>
+                    </div>
+                    <div className="relative z-10 space-y-3">
+                      <p className="font-sans text-xs text-white/70 leading-relaxed font-light">{role.desc}</p>
+                      <ul className="space-y-2 mt-4 ml-1">
+                        {role.details.map((dt, i) => (
+                          <li key={i} className="flex items-center gap-2">
+                            <Activity className={`w-3 h-3 ${activeTheme.ui.accent}`} />
+                            <span className="font-mono text-[10px] tracking-wider text-white/50">{dt}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )})}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <motion.div 
+          className="text-center pb-2 select-none"
+        >
+          <p className="font-mono text-[9px] text-[#a0a0ab] uppercase tracking-widest">
+            VERSATILE STACK.
+          </p>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
 }

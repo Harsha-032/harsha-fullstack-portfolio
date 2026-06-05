@@ -1,101 +1,77 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Preloader({ onComplete }) {
-  const [progress, setProgress] = useState(0)
-  const [phase, setPhase] = useState('loading') // 'loading' | 'reveal' | 'done'
+  const [progress, setProgress] = useState(0);
+  const [complete, setComplete] = useState(false);
 
   useEffect(() => {
-    const duration = 2200
-    const startTime = Date.now()
+    let current = 0;
+    const interval = setInterval(() => {
+      const increment = Math.floor(Math.random() * 8) + 3;
+      current = Math.min(100, current + increment);
+      setProgress(current);
 
-    const tick = () => {
-      const elapsed = Date.now() - startTime
-      const p = Math.min(elapsed / duration, 1)
-      // Ease-out curve for natural feel
-      const eased = 1 - Math.pow(1 - p, 3)
-      setProgress(Math.round(eased * 100))
-
-      if (p < 1) {
-        requestAnimationFrame(tick)
-      } else {
-        setPhase('reveal')
+      if (current >= 100) {
+        clearInterval(interval);
         setTimeout(() => {
-          setPhase('done')
-          onComplete?.()
-        }, 600)
+          setComplete(true);
+          onComplete(); // Trigger app mount instantly to overlap transition
+        }, 500);
       }
-    }
+    }, 80);
 
-    requestAnimationFrame(tick)
-  }, [onComplete])
+    return () => clearInterval(interval);
+  }, [onComplete]);
 
   return (
     <AnimatePresence>
-      {phase !== 'done' && (
+      {!complete && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050505]"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+          initial={{ opacity: 1 }}
+          exit={{ 
+            y: "-100%",
+            transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } 
+          }}
+          className="fixed inset-0 bg-[#050505] z-50 flex flex-col items-center justify-center p-6 overflow-hidden"
         >
-          {/* Ambient glow */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#7c3aed]/[0.04] blur-[120px]" />
-          </div>
+          <div className="relative flex flex-col items-center justify-center max-w-lg w-full">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="relative w-24 h-24 mb-10 flex items-center justify-center rounded-full"
+            >
+              <span className="font-serif text-3xl font-bold text-white tracking-widest">HC</span>
+            </motion.div>
 
-          <motion.div
-            className="relative z-10 flex flex-col items-center gap-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* Name */}
-            <div className="text-center">
+            <div className="text-center space-y-3 mb-10">
               <motion.h1
-                className="text-4xl md:text-6xl font-black tracking-[-0.04em] text-white"
-                initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ letterSpacing: "0.2em", opacity: 0 }}
+                animate={{ letterSpacing: "0.35em", opacity: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="font-serif text-3xl sm:text-4xl md:text-5xl font-light uppercase text-white leading-none pl-[0.35em]"
               >
                 HARSHA C
               </motion.h1>
-              
-              <motion.p
-                className="mt-3 text-sm md:text-base tracking-[0.35em] uppercase text-zinc-500 font-medium"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-              >
-                Full Stack Developer
-              </motion.p>
             </div>
 
-            {/* Progress bar */}
-            <motion.div
-              className="w-48 h-[2px] bg-zinc-800 rounded-full overflow-hidden"
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-            >
-              <motion.div
-                className="h-full bg-gradient-to-r from-[#7c3aed] to-[#22d3ee] rounded-full origin-left"
-                style={{ width: `${progress}%` }}
-                transition={{ duration: 0.1 }}
-              />
-            </motion.div>
-
-            {/* Percentage */}
-            <motion.span
-              className="text-xs tracking-[0.3em] text-zinc-600 font-mono tabular-nums"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              {progress}%
-            </motion.span>
-          </motion.div>
+            <div className="w-full max-w-xs space-y-4">
+              <div className="flex justify-between items-baseline font-mono text-[11px] text-white/40">
+                <span>INITIALIZING SYSTEM</span>
+                <span className="text-emerald-400 tracking-wider font-bold">{progress}%</span>
+              </div>
+              
+              <div className="h-[2px] w-full bg-white/5 rounded-full overflow-hidden relative">
+                <motion.div
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-400 to-[#22d3ee]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
