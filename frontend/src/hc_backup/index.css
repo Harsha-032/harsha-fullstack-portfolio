@@ -23,15 +23,6 @@
   --animate-dash: dash 4s ease-in-out infinite;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  background-color: #000;
-  overscroll-behavior: none;
-  overflow-x: hidden;
-  width: 100%;
-}
-
 @keyframes float {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -104,25 +95,6 @@ html, body {
   * {
     cursor: none !important;
   }
-}
-
-/* Global Scrollbar (Thin Line) */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  border-left: none;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
 }
 
 /* Custom Scrollbar for inner overflowing sections */
