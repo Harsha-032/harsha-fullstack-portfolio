@@ -114,15 +114,6 @@ function ThemeProvider({ children }) {
     }
   }
 
-  useEffect(() => {
-    const root = document.documentElement;
-    const themeObj = THEMES[theme];
-    if (themeObj) {
-      root.style.setProperty('--theme-scroll-thumb', themeObj.sky.mid);
-      root.style.setProperty('--theme-scroll-thumb-hover', themeObj.sky.start);
-    }
-  }, [theme]);
-
   return (
     <ThemeContext.Provider value={{ activeTheme: THEMES[theme], setTheme }}>
       {children}

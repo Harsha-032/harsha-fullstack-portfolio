@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { MountainSnow } from "lucide-react";
 import { useTheme } from "../lib/theme";
 
-export default function Timeline({ onScrollToTop }: any) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+export default function Timeline({ onScrollToTop }) {
+  const containerRef = useRef(null);
   const { activeTheme } = useTheme();
 
   return (
