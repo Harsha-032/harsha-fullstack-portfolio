@@ -2,10 +2,13 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Briefcase, Code, Terminal, Circle } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { getSystematicRandomProps } from "../utils/animations";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export default function Experience({ experiences = [] }) {
   const containerRef = useRef(null);
   const { activeTheme } = useTheme();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -34,7 +37,7 @@ export default function Experience({ experiences = [] }) {
     <section 
       id="experience" 
       ref={containerRef}
-      className="relative min-h-[100dvh] w-full flex flex-col justify-start items-center bg-transparent py-24 sm:py-32 text-white"
+      className="relative min-h-[100dvh] w-full flex flex-col justify-start items-center bg-transparent py-16 sm:py-24 md:py-32 text-white"
     >
       <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden">
         <div 
@@ -47,7 +50,7 @@ export default function Experience({ experiences = [] }) {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ margin: "0px 0px -100px 0px", once: false }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: isMobile ? 0.5 : 0.8 }}
         className="relative z-10 w-full max-w-5xl mx-auto flex flex-col justify-start flex-1 px-4 sm:px-12 md:px-16 pointer-events-auto"
       >
         <div className="text-center pt-2 select-none mb-16 sm:mb-24">
@@ -77,10 +80,9 @@ export default function Experience({ experiences = [] }) {
                 <div key={i} className={`relative flex items-center justify-start md:justify-between w-full group ${!isEven ? 'md:flex-row-reverse' : ''}`}>
                   {/* Timeline Node */}
                   <motion.div 
-                    initial={{ scale: 0, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
+                    {...getSystematicRandomProps(`exp-node-${i}`)}
                     viewport={{ once: false, margin: "-10%" }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ type: "spring", stiffness: isMobile ? 400 : 300, damping: isMobile ? 25 : 20 }}
                     className="absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-full bg-black border-2 border-white/20 group-hover:border-white/60 transition-colors duration-300 z-10"
                   >
                     <div className="absolute inset-0 rounded-full flex items-center justify-center bg-white/5 backdrop-blur-sm">
@@ -90,10 +92,9 @@ export default function Experience({ experiences = [] }) {
 
                   {/* Content Card */}
                   <motion.div 
-                    initial={{ opacity: 0, x: isEven ? -50 : 50, y: 20 }}
-                    whileInView={{ opacity: 1, x: 0, y: 0 }}
+                    {...getSystematicRandomProps(`exp-card-${i}`)}
                     viewport={{ once: false, margin: "-10%" }}
-                    transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
+                    transition={{ duration: isMobile ? 0.4 : 0.6, type: "spring", bounce: isMobile ? 0.1 : 0.2 }}
                     className={`w-full md:w-[45%] pl-16 md:pl-0 ${!isEven ? 'md:text-right' : 'md:text-left'} flex flex-col gap-3 md:gap-4`}
                   >
                     <div className="flex flex-col gap-1">

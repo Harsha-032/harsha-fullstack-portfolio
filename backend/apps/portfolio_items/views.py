@@ -19,6 +19,7 @@ class PortfolioItemListAPIView(generics.ListAPIView):
     ]
 
     ordering_fields = [
+        'order',
         'title',
         'created_at',
     ]

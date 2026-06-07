@@ -1,39 +1,139 @@
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { Droplets, ArrowRightLeft, ShieldAlert, BadgeCent, Percent, Layers, PieChart, Activity, Box, Terminal, Cloud } from "lucide-react";
+import { Droplets, ArrowRightLeft, ShieldAlert, BadgeCent, Percent, Layers, PieChart, Activity, Box, Terminal, Cloud, Code, Cpu, Database, Settings, Zap, Globe, Compass, FileCode } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { getSystematicRandomProps } from "../utils/animations";
+import { resolveImageUrl } from "../utils/helpers";
+import { useMediaQuery } from "../hooks/useMediaQuery";
+
+const FALLBACK_ICONS = [Code, Cpu, Database, Box, Layers, Activity, Terminal, Settings, Zap, Globe, Compass, FileCode];
+
+const getFallbackIcon = (name) => {
+  if (!name) return Code;
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  hash = Math.abs(hash);
+  return FALLBACK_ICONS[hash % FALLBACK_ICONS.length];
+};
+
+const SkillIcon = ({ iconName, iconUrl, name, fallbackClass }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (iconName && iconName !== 'default' && !hasError) {
+    return (
+      <img 
+        src={`https://go-skill-icons.vercel.app/api/icons?i=${iconName}`} 
+        alt={name} 
+        className="w-5 h-5 object-contain"
+        onError={() => setHasError(true)}
+      />
+    );
+  }
+
+  if (iconUrl && !hasError) {
+    return (
+      <img 
+        src={resolveImageUrl(iconUrl)} 
+        alt={name} 
+        className="w-5 h-5 object-contain" 
+        onError={() => setHasError(true)}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
+  // Fallback to a seeded random Lucide icon based on name
+  const IconComponent = getFallbackIcon(name);
+  return <IconComponent className={fallbackClass} />;
+};
+
+const SmoothScrollContainer = ({ children, className }) => {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      el.scrollBy({ top: e.deltaY, behavior: 'smooth' });
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div 
+      ref={scrollRef} 
+      className={className} 
+      data-lenis-prevent="true"
+    >
+      {children}
+    </div>
+  );
+};
 
 export default function Skills({ skills = [] }) {
-  const [activeIdx, setActiveIdx] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(null);
   const containerRef = useRef(null);
   const { activeTheme } = useTheme();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const getIconForCategory = (categoryName) => {
     const lower = categoryName.toLowerCase();
     if (lower.includes("frontend") || lower.includes("ui") || lower.includes("design")) return Droplets;
     if (lower.includes("backend") || lower.includes("api") || lower.includes("server")) return ArrowRightLeft;
     if (lower.includes("cloud") || lower.includes("devops") || lower.includes("infra")) return Cloud;
+    if (lower.includes("methodologies") || lower.includes("methodology") || lower.includes("agile")) return Layers;
     if (lower.includes("tool") || lower.includes("misc")) return Terminal;
     return Box;
   };
 
   const rolesData = useMemo(() => {
-    if (!skills.length) return [];
+    const list = skills.length ? skills : [
+      { name: "React", category: "frontend", proficiency: 90, icon_name: "react" },
+      { name: "JavaScript", category: "frontend", proficiency: 90, icon_name: "js" },
+      { name: "Python", category: "backend", proficiency: 90, icon_name: "py" },
+      { name: "Django", category: "backend", proficiency: 85, icon_name: "django" },
+      { name: "PostgreSQL", category: "database", proficiency: 85, icon_name: "postgres" },
+      { name: "Git", category: "tools", proficiency: 90, icon_name: "git" }
+    ];
 
     const grouped = {};
-    skills.forEach(tech => {
+    list.forEach(tech => {
       let cat = tech.category ? tech.category.charAt(0).toUpperCase() + tech.category.slice(1) : "Other";
       if (!grouped[cat]) grouped[cat] = [];
-      grouped[cat].push({ name: tech.name, proficiency: tech.proficiency || 50 });
+      grouped[cat].push({ 
+        name: tech.name, 
+        proficiency: tech.proficiency || 50,
+        icon: tech.icon,
+        iconName: tech.icon_name,
+        order: tech.order || 0
+      });
     });
 
-    return Object.keys(grouped).map((catName) => ({
+    const result = Object.keys(grouped).map((catName) => ({
       name: catName + " Stack",
-      category: "Proficiency",
+      category: "Skills & Tools",
       icon: getIconForCategory(catName),
       desc: `Specialized tools and technologies within the ${catName} ecosystem.`,
-      details: grouped[catName].sort((a, b) => b.proficiency - a.proficiency).slice(0, 4)
+      details: grouped[catName].sort((a, b) => a.order - b.order)
     }));
+
+    const desiredOrder = ["Backend Stack", "Frontend Stack", "Methodologies Stack", "Devops Stack", "Cloud Stack", "Tools Stack"];
+
+    return result.sort((a, b) => {
+      const aIdx = desiredOrder.indexOf(a.name);
+      const bIdx = desiredOrder.indexOf(b.name);
+      
+      const aSort = aIdx === -1 ? 999 : aIdx;
+      const bSort = bIdx === -1 ? 999 : bIdx;
+      
+      return aSort - bSort;
+    });
   }, [skills]);
 
 
@@ -42,7 +142,7 @@ export default function Skills({ skills = [] }) {
     <section 
       id="liquidity-flows" 
       ref={containerRef}
-      className="relative min-h-[100dvh] w-full flex flex-col justify-start py-24 text-white overflow-hidden bg-transparent"
+      className="relative min-h-[100dvh] w-full flex flex-col justify-start py-16 sm:py-24 text-white overflow-hidden bg-transparent"
     >
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
         <div 
@@ -55,7 +155,7 @@ export default function Skills({ skills = [] }) {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ margin: "0px 0px -100px 0px", once: false }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="relative z-10 w-full flex flex-col justify-between flex-1 px-6 sm:px-12 md:px-16"
       >
         <div className="text-center pt-2 select-none">
@@ -71,16 +171,16 @@ export default function Skills({ skills = [] }) {
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full px-4">
                 {rolesData.map((role, idx) => {
-                  const rx = Math.sin((idx + 5) * 17.5) * 150;
-                  const ry = Math.cos((idx + 4) * 9.2) * 150;
+                  const skillAnim = getSystematicRandomProps(`skill-${idx}`);
                   return (
                   <motion.div
                     key={idx}
-                    initial={{ opacity: 0, x: rx, y: ry, scale: 0.9 }}
-                    whileInView={{ opacity: 1, x: 0, y: 0, scale: activeIdx === idx ? 1.05 : 1 }}
+                    initial={skillAnim.initial}
+                    whileInView={{ ...skillAnim.whileInView, scale: activeIdx === idx ? 1.05 : 1 }}
                     viewport={{ once: false, margin: "0px 0px -100px 0px" }}
-                    transition={{ duration: 0.8, delay: idx * 0.1, type: "spring", bounce: 0.3 }}
+                    transition={{ duration: 0.3, delay: idx * 0.02, ease: "easeOut" }}
                     onMouseEnter={() => setActiveIdx(idx)}
+                    onMouseLeave={() => setActiveIdx(null)}
                     className={`relative p-6 rounded-2xl border transition-all duration-300 cursor-pointer backdrop-blur-sm overflow-hidden flex flex-col gap-4 ${
                       activeIdx === idx 
                         ? "border-white/20 bg-white/10 shadow-xl shadow-black/50" 
@@ -99,29 +199,23 @@ export default function Skills({ skills = [] }) {
                     </div>
                     <div className="relative z-10 space-y-3">
                       <p className="font-sans text-xs text-white/70 leading-relaxed font-light">{role.desc}</p>
-                      <ul className="space-y-4 mt-4 ml-1 w-full">
-                        {role.details.map((dt, i) => (
-                          <li key={i} className="flex flex-col gap-1.5 w-full pr-4">
-                            <div className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-2">
-                                <Activity className={`w-3.5 h-3.5 ${activeTheme.ui.accent}`} />
-                                <span className="font-sans font-medium text-xs tracking-wider text-white/80">{dt.name}</span>
+                      <SmoothScrollContainer className="mt-4 w-full max-h-[220px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                        <ul className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-y-6 gap-x-4 w-full pb-4">
+                          {role.details.map((dt, i) => (
+                            <li key={i} className="flex items-center w-full">
+                              <div className="flex items-center gap-2.5 w-full">
+                                <SkillIcon 
+                                  iconName={dt.iconName}
+                                  iconUrl={dt.icon} 
+                                  name={dt.name} 
+                                  fallbackClass={`w-5 h-5 ${activeTheme.ui.accent} shrink-0`} 
+                                />
+                                <span className="font-sans font-medium text-sm tracking-wide text-white/90 leading-tight">{dt.name}</span>
                               </div>
-                              <span className="font-mono text-[9px] text-[#a0a0ab] font-bold">{dt.proficiency}%</span>
-                            </div>
-                            <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden flex">
-                              <motion.div 
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${dt.proficiency}%` }}
-                                viewport={{ once: false }}
-                                transition={{ duration: 1.2, delay: i * 0.15, ease: "easeOut" }}
-                                className={`h-full`}
-                                style={{ backgroundColor: activeTheme.sky.start || '#fff' }}
-                              />
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
+                            </li>
+                          ))}
+                        </ul>
+                      </SmoothScrollContainer>
                     </div>
                   </motion.div>
                 )})}

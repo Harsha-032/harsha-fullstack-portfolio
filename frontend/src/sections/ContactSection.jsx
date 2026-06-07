@@ -249,6 +249,13 @@ export default function ContactSection({ profile, socialLinks }) {
         </div>
 
       </div>
+
+      {/* Page Footer Closure */}
+      <div className="absolute bottom-0 left-0 w-full py-6 flex flex-col items-center justify-center z-20 border-t border-white/5 bg-gradient-to-t from-black/40 to-transparent">
+        <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
+          © {new Date().getFullYear()} {profile?.full_name || "Harsha C"}. All rights reserved.
+        </p>
+      </div>
     </section>
   );
 }

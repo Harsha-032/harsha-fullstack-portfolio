@@ -49,12 +49,17 @@ class PortfolioItem(models.Model):
         default=False
     )
 
+    order = models.IntegerField(
+        default=0,
+        help_text="Custom sort order. Lower numbers appear first. 0 is default."
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['order', '-created_at']
 
     def save(self, *args, **kwargs):
         if not self.slug:

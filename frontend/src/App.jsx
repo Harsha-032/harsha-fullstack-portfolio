@@ -117,6 +117,7 @@ export default function App() {
   };
 
   const { scrollYProgress } = useScroll();
+  const adjustedScrollProgress = useTransform(scrollYProgress, [0, 0.98], [0, 1]);
 
   const handleDotClick = (id) => {
     setActiveSection(id);
@@ -251,9 +252,9 @@ export default function App() {
 
           {/* Bottom Scroll Progress Bar */}
           <motion.div 
-            className="fixed bottom-0 left-0 right-0 h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
+            className="fixed bottom-0 left-0 w-screen h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
             style={{ 
-              scaleX: scrollYProgress,
+              scaleX: adjustedScrollProgress,
               backgroundColor: activeTheme.sky.start || 'white',
               boxShadow: `0 0 10px ${activeTheme.sky.start || 'white'}`
             }}

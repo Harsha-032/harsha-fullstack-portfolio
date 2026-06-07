@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ExternalLink, Code, Database, Sparkles, Globe } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { getSystematicRandomProps } from "../utils/animations";
+import { resolveImageUrl } from "../utils/helpers";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export default function Projects({ projects = [] }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const { activeTheme } = useTheme();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const themeHex = activeTheme.sky.start;
 
@@ -14,7 +18,7 @@ export default function Projects({ projects = [] }) {
   return (
     <section 
       id="redefined" 
-      className="relative py-24 sm:py-32 bg-transparent overflow-hidden flex items-center justify-center pt-32 sm:pt-40 text-white"
+      className="relative py-16 sm:py-24 md:py-32 bg-transparent overflow-hidden flex items-center justify-center pt-24 sm:pt-32 md:pt-40 text-white"
     >
       <div 
         className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full filter blur-[150px] pointer-events-none opacity-10" 
@@ -29,10 +33,9 @@ export default function Projects({ projects = [] }) {
         
         {/* Head Block */}
         <motion.div 
-          initial={{ opacity: 0, x: -200, rotateX: 45 }}
-          whileInView={{ opacity: 1, x: 0, rotateX: 0 }}
+          {...getSystematicRandomProps("projects-title")}
           viewport={{ once: false, margin: "50px" }}
-          transition={{ duration: 1.2, type: "spring", bounce: 0.4 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           className="max-w-2xl text-left mb-16 sm:mb-24"
         >
           <span className={`font-mono text-[10px] font-bold uppercase tracking-[0.4em] ${activeTheme.ui.badgeText} ${activeTheme.ui.badgeBg} border ${activeTheme.ui.badgeBorder} rounded-full px-5 py-1.5 backdrop-blur-md inline-block mb-4`}>
@@ -47,14 +50,13 @@ export default function Projects({ projects = [] }) {
         </motion.div>
 
         {/* Cinematic Grid of Columns (Apple Style Card Matrix) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pointer-events-auto">
+        <div className={`grid grid-cols-1 md:grid-cols-2 ${displayProjects.length === 4 || displayProjects.length === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'} gap-8 pointer-events-auto`}>
           {displayProjects.map((project, idx) => (
             <motion.div
               key={project.title}
-              initial={{ opacity: 0, y: 150, x: idx % 2 === 0 ? -100 : 100, scale: 0.8, rotate: idx % 2 === 0 ? -10 : 10 }}
-              whileInView={{ opacity: 1, y: 0, x: 0, scale: 1, rotate: 0 }}
+              {...getSystematicRandomProps(`project-${idx}`)}
               viewport={{ once: false, margin: "50px" }}
-              transition={{ duration: 1.2, delay: idx * 0.15, type: "spring", bounce: 0.4 }}
+              transition={{ duration: 0.3, delay: idx * 0.03, ease: "easeOut" }}
               onMouseEnter={() => setHoveredIndex(idx)}
               onMouseLeave={() => setHoveredIndex(null)}
               className="relative rounded-2xl border border-white/5 bg-black/40 backdrop-blur-md group overflow-hidden flex flex-col justify-between shadow-xl transition-all duration-500 hover:border-white/20"
@@ -73,10 +75,10 @@ export default function Projects({ projects = [] }) {
               />
 
               {/* Product Design Mock Canvas representation */}
-              <div className="relative h-56 sm:h-64 w-full overflow-hidden border-b border-white/5 bg-transparent">
+              <div className="relative h-56 sm:h-64 w-full overflow-hidden rounded-t-2xl border-b border-white/5 bg-transparent isolate [transform:translateZ(0)]">
                 {project.image ? (
                   <>
-                    <img src={project.image} alt={project.title} className="w-full h-full object-cover object-center transition-all duration-700 opacity-80 group-hover:opacity-100 group-hover:scale-105" />
+                    <img src={resolveImageUrl(project.image)} alt={project.title} className="w-full h-full object-cover object-top transition-all duration-700 opacity-80 group-hover:opacity-100 group-hover:scale-105" />
                     {/* Hover Blur Overlay to make the image appear blurred behind buttons */}
                     <div className="absolute inset-0 bg-black/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-500 z-10" />
                   </>
@@ -96,8 +98,8 @@ export default function Projects({ projects = [] }) {
                 </div>
 
                 {/* Hover Overlay Buttons */}
-                <div className="absolute bottom-4 left-4 z-30 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  {project.live_url && (
+                <div className="absolute bottom-4 left-4 z-30 flex items-center flex-wrap gap-2 sm:gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  {(project.live_url && project.live_url !== "null" && project.live_url.trim() !== "") && (
                   <a
                     href={project.live_url}
                     target="_blank"
@@ -108,7 +110,7 @@ export default function Projects({ projects = [] }) {
                     Live
                   </a>
                   )}
-                  {project.github_url && (
+                  {(project.github_url && project.github_url !== "null" && project.github_url.trim() !== "") && (
                   <a
                     href={project.github_url}
                     target="_blank"

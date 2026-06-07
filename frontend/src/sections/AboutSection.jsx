@@ -81,15 +81,13 @@ export default function AboutSection({ profile }) {
            whileInView={{ opacity: 1, y: 0, scale: 1 }}
            viewport={{ once: false }}
            transition={{ delay: 0.1, duration: 1.0, type: "spring", bounce: 0.3 }}
-           className="mt-12 sm:mt-16 relative pointer-events-auto"
+           className="mt-12 sm:mt-16 relative pointer-events-auto flex items-center justify-center"
         >
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)] group cursor-pointer" title="Profile Photo">
+          <div className="relative w-[150px] h-[150px] sm:w-[180px] sm:h-[180px] md:w-[220px] md:h-[220px] min-w-[150px] min-h-[150px] sm:min-w-[180px] sm:min-h-[180px] md:min-w-[220px] md:min-h-[220px] max-w-[150px] max-h-[150px] sm:max-w-[180px] sm:max-h-[180px] md:max-w-[220px] md:max-h-[220px] rounded-full overflow-hidden border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)] group cursor-pointer" style={{ flexShrink: 0 }} title="Profile Photo">
              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 mix-blend-overlay" />
-             <img 
-               src={photo} 
-               alt="Profile" 
-               className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
-               referrerPolicy="no-referrer"
+             <div 
+               className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat filter grayscale hover:grayscale-0 transition-transform duration-500 group-hover:scale-110"
+               style={{ backgroundImage: `url(${photo})` }}
              />
           </div>
         </motion.div>
