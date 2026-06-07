@@ -1,15 +1,19 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { FileText } from "lucide-react";
+import { getSystematicRandomProps } from "../utils/animations";
+import { resolveImageUrl } from "../utils/helpers";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export default function About({ profile }) {
   const containerRef = useRef(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
     <section 
       id="one-pool" 
       ref={containerRef}
-      className="relative min-h-[100dvh] w-full flex flex-col justify-center items-center bg-transparent py-24 text-white"
+      className="relative min-h-[100dvh] w-full flex flex-col justify-center items-center bg-transparent py-16 sm:py-24 text-white"
     >
       {/* Animated Orbit Glimmers */}
       <div className="absolute inset-0 z-0 pointer-events-none flex items-end justify-center select-none overflow-hidden">
@@ -62,13 +66,12 @@ export default function About({ profile }) {
         className="relative z-10 w-full flex flex-col items-center justify-center pointer-events-none select-none max-w-4xl px-4"
       >
         <motion.div 
-          initial={{ opacity: 0, y: -200, scale: 1.5, rotateX: 45 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+          {...getSystematicRandomProps("about-title")}
           viewport={{ once: false, margin: "100px" }}
-          transition={{ duration: 1.2, type: "spring", bounce: 0.4 }}
+          transition={{ duration: isMobile ? 0.8 : 1.2, type: "spring", bounce: isMobile ? 0.2 : 0.4 }}
           className="relative inline-flex flex-col items-center justify-center"
         >
-          <h2 className="font-serif text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] font-light text-white tracking-tight drop-shadow-md relative leading-none text-center">
+          <h2 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-light text-white tracking-tight drop-shadow-md relative leading-none text-center">
             About<span className="opacity-0 w-2 inline-block"> </span>Me
             
             {/* Extended vertical line through the text */}
@@ -78,18 +81,17 @@ export default function About({ profile }) {
 
         {profile?.profile_photo && (
         <motion.div
-           initial={{ opacity: 0, x: -300, y: 100, rotate: -45, scale: 0.5 }}
-           whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
+           {...getSystematicRandomProps("about-photo")}
            viewport={{ once: false }}
-           transition={{ delay: 0.1, duration: 1.2, type: "spring", bounce: 0.5 }}
+           transition={{ delay: 0.1, duration: isMobile ? 0.8 : 1.2, type: "spring", bounce: isMobile ? 0.2 : 0.5 }}
            className="mt-12 sm:mt-16 relative pointer-events-auto"
         >
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)] group cursor-pointer shrink-0 aspect-square" title={profile?.full_name || ""}>
+          <div className="relative w-32 h-32 min-w-[128px] min-h-[128px] max-w-[128px] max-h-[128px] sm:w-40 sm:h-40 sm:min-w-[160px] sm:min-h-[160px] sm:max-w-[160px] sm:max-h-[160px] md:w-48 md:h-48 md:min-w-[192px] md:min-h-[192px] md:max-w-[192px] md:max-h-[192px] rounded-full overflow-hidden border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)] group cursor-pointer shrink-0 aspect-square" title={profile?.full_name || ""}>
              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 mix-blend-overlay" />
              <img 
-               src={profile?.profile_photo}
+               src={resolveImageUrl(profile?.profile_photo)}
                alt={profile?.full_name || ""} 
-               className="w-full h-full object-cover object-center transition-all duration-500 scale-105 group-hover:scale-100"
+               className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                referrerPolicy="no-referrer"
              />
           </div>
@@ -97,24 +99,23 @@ export default function About({ profile }) {
         )}
 
         <motion.p
-          initial={{ opacity: 0, x: 300, y: 100, rotate: 15, scale: 0.8 }}
-          whileInView={{ opacity: 0.8, x: 0, y: 0, rotate: 0, scale: 1 }}
+          {...getSystematicRandomProps("about-desc")}
+          whileInView={{ ...getSystematicRandomProps("about-desc").whileInView, opacity: 0.8 }}
           viewport={{ once: false }}
-          transition={{ delay: 0.2, duration: 1.2, type: "spring", bounce: 0.4 }}
+          transition={{ delay: 0.2, duration: isMobile ? 0.8 : 1.2, type: "spring", bounce: isMobile ? 0.2 : 0.4 }}
           className="text-white font-sans font-light tracking-[0.02em] text-sm sm:text-base md:text-xl mt-12 sm:mt-16 max-w-xl text-center leading-relaxed drop-shadow-sm"
         >
           {profile?.about_description || ""}
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 200, scale: 0 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          {...getSystematicRandomProps("about-resume")}
           viewport={{ once: false }}
-          transition={{ delay: 0.4, duration: 1.0, type: "spring", bounce: 0.6 }}
+          transition={{ delay: isMobile ? 0.2 : 0.4, duration: isMobile ? 0.6 : 1.0, type: "spring", bounce: isMobile ? 0.3 : 0.6 }}
           className="mt-10 pointer-events-auto"
         >
           <a 
-            href={profile?.resume_url || "#"} 
+            href={profile?.resume_url ? resolveImageUrl(profile.resume_url) : "#"} 
             target="_blank" 
             rel="noreferrer"
             className="px-8 py-3 bg-white/5 border border-white/20 text-white font-semibold uppercase tracking-widest text-xs rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm cursor-pointer flex items-center gap-2 hover:border-white/40"

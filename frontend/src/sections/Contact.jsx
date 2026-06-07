@@ -4,6 +4,8 @@ import { Send, MapPin, Mail, ArrowUpRight, CheckCircle2, AlertCircle } from "luc
 import { FaGithub, FaLinkedin, FaLink, FaFilePdf } from "react-icons/fa";
 import { useTheme } from "../lib/theme";
 import { submitInquiry } from "../services/portfolioApi";
+import { getSystematicRandomProps } from "../utils/animations";
+import { resolveImageUrl } from "../utils/helpers";
 
 const getSocialIcon = (platform) => {
   const p = platform.toUpperCase();
@@ -81,7 +83,7 @@ export default function Contact({ profile = null, socialLinks = [] }) {
   return (
     <section 
       id="climb" 
-      className="relative min-h-[100dvh] w-full flex flex-col justify-center items-center py-24 sm:py-32 bg-transparent text-white"
+      className="relative min-h-[100dvh] w-full flex flex-col justify-center items-center py-16 sm:py-24 md:py-32 bg-transparent text-white"
     >
       {/* Background radial highlight flares */}
       <div className={`absolute top-1/2 left-0 w-[500px] h-[500px] ${activeTheme.ui.accent.replace('text-', 'bg-')} opacity-5 rounded-full filter blur-[150px] pointer-events-none`} />
@@ -96,8 +98,7 @@ export default function Contact({ profile = null, socialLinks = [] }) {
           
           {/* Left Column: Contact meta descriptors / Links */}
           <motion.div 
-            initial={{ opacity: 0, x: -200, y: 100, rotate: -5 }}
-            whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
+            {...getSystematicRandomProps("contact-left")}
             viewport={{ once: false, margin: "50px" }}
             transition={{ duration: 1.2, type: "spring", bounce: 0.3 }}
             className="lg:col-span-5 text-left space-y-12"
@@ -172,7 +173,7 @@ export default function Contact({ profile = null, socialLinks = [] }) {
                 {/* Always show Resume link at the end */}
                 {profile?.resume_url && (
                 <a 
-                  href={profile.resume_url} 
+                  href={resolveImageUrl(profile.resume_url)} 
                   target="_blank"  
                   rel="noreferrer"
                   className={`text-white ${activeTheme.ui.textHover} flex items-center transition-colors group`}
@@ -189,8 +190,7 @@ export default function Contact({ profile = null, socialLinks = [] }) {
 
           {/* Right Column: Premium Contacts Form Layer */}
           <motion.div 
-            initial={{ opacity: 0, x: 200, y: 100, rotate: 5 }}
-            whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
+            {...getSystematicRandomProps("contact-right")}
             viewport={{ once: false, margin: "50px" }}
             transition={{ duration: 1.2, delay: 0.1, type: "spring", bounce: 0.3 }}
             className="lg:col-span-7"
@@ -283,6 +283,13 @@ export default function Contact({ profile = null, socialLinks = [] }) {
 
         </div>
 
+      </div>
+
+      {/* Page Footer Closure */}
+      <div className="absolute bottom-0 left-0 w-full py-6 flex flex-col items-center justify-center z-20 border-t border-white/5 bg-gradient-to-t from-black/40 to-transparent">
+        <p className="font-mono text-[8px] sm:text-[10px] text-white/40 uppercase tracking-[0.2em] flex items-center gap-2 text-center px-4">
+          © {new Date().getFullYear()} {profile?.full_name || "Harsha C"}. All rights reserved.
+        </p>
       </div>
     </section>
   );

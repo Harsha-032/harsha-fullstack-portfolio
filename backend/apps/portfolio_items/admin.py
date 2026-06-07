@@ -7,8 +7,14 @@ class PortfolioItemAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'tech_stack',
+        'order',
         'featured',
         'created_at',
+    )
+    
+    list_editable = (
+        'order',
+        'featured',
     )
 
     search_fields = (

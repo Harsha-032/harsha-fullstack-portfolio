@@ -4,7 +4,7 @@ import { useApi } from '../hooks/useApi'
 import { getProfile } from '../services/portfolioApi'
 import Navbar from '../components/common/Navbar'
 import TerminalModal from '../components/common/TerminalModal'
-import { motion } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
 import { useTheme } from '../lib/theme'
 import { audio } from '../lib/audio'
 
@@ -23,6 +23,8 @@ function RootLayout({ scrollYProgress }) {
   const [activeSection, setActiveSection] = useState("hero-section")
   const { activeTheme } = useTheme()
   const location = useLocation()
+  
+  const adjustedScrollProgress = scrollYProgress ? useTransform(scrollYProgress, [0, 0.98], [0, 1]) : null;
   
   const isHomePage = location.pathname === '/'
 
@@ -130,9 +132,9 @@ function RootLayout({ scrollYProgress }) {
       {/* Bottom Scroll Progress Bar */}
       {scrollYProgress && (
         <motion.div 
-          className="fixed bottom-0 left-0 right-0 h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
+          className="fixed bottom-0 left-0 w-screen h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
           style={{ 
-            scaleX: scrollYProgress,
+            scaleX: adjustedScrollProgress,
             backgroundColor: activeTheme.sky.start || 'white',
             boxShadow: `0 0 10px ${activeTheme.sky.start || 'white'}`
           }}

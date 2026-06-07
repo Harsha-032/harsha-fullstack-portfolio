@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowRight, Layers, Palette } from "lucide-react";
 import { audio } from "../../lib/audio";
 import { useTheme, THEMES } from "../../lib/theme";

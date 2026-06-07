@@ -1,10 +1,12 @@
 import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowDown } from "lucide-react";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export default function Hero({ profile }) {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const titleRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
@@ -23,7 +25,7 @@ export default function Hero({ profile }) {
     <section 
       id="peak" 
       ref={containerRef}
-      className="relative min-h-[100dvh] w-full flex flex-col items-center justify-between overflow-hidden bg-transparent py-20 text-white"
+      className="relative min-h-[100dvh] w-full flex flex-col items-center justify-between overflow-hidden bg-transparent py-16 sm:py-20 text-white"
     >
       {/* Cinematic Ambient Atmosphere Overlays */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
@@ -32,15 +34,15 @@ export default function Hero({ profile }) {
         <div className="absolute top-[35%] right-10 w-[400px] h-16 bg-white/5 rounded-full blur-2xl animate-pulse" style={{ animationDuration: "18s" }} />
       </div>
 
-      <div className="relative z-10 w-full flex flex-col items-center justify-between flex-1 select-none pt-24 pb-8">
+      <div className="relative z-10 w-full flex flex-col items-center justify-between flex-1 select-none pt-20 sm:pt-24 pb-8">
         <motion.div 
           initial={{ opacity: 0, y: -20, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1.4, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: isMobile ? 0.8 : 1.4, delay: isMobile ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="relative text-center mt-8 sm:mt-12 group"
         >
           <div className="absolute inset-0 bg-white/5 blur-xl group-hover:bg-brand-cyan/20 transition-all duration-700 rounded-full" />
-          <span className="relative font-serif text-xs font-bold tracking-[0.25em] uppercase text-white drop-shadow-md px-6 py-2 border border-white/10 rounded-full backdrop-blur-sm">
+          <span className="relative font-serif text-xs font-bold tracking-[0.25em] uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-6 py-2 border border-white/20 bg-white/10 rounded-full backdrop-blur-md">
             {profile?.headline || ""}
           </span>
         </motion.div>
@@ -67,7 +69,7 @@ export default function Hero({ profile }) {
                   className={letter === " " ? "w-4 sm:w-10" : "inline-block"}
                   initial={{ opacity: 0, y: 60, scale: 0.9, filter: "blur(12px)" }}
                   animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                  transition={{ duration: 1.6, delay: 0.8 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: isMobile ? 0.8 : 1.6, delay: isMobile ? 0.4 + i * 0.05 : 0.8 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 >
                   {letter}
                 </motion.span>
@@ -92,7 +94,7 @@ export default function Hero({ profile }) {
                   className={letter === " " ? "w-4 sm:w-10" : "inline-block"}
                   initial={{ opacity: 0, y: 60, scale: 0.9, filter: "blur(12px)" }}
                   animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                  transition={{ duration: 1.6, delay: 0.8 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: isMobile ? 0.8 : 1.6, delay: isMobile ? 0.4 + i * 0.05 : 0.8 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 >
                   {letter}
                 </motion.span>
@@ -104,7 +106,7 @@ export default function Hero({ profile }) {
         <motion.div 
           initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1.4, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: isMobile ? 0.8 : 1.4, delay: isMobile ? 0.8 : 1.6, ease: [0.16, 1, 0.3, 1] }}
           className="relative flex flex-col items-center gap-10 mb-4 select-none pointer-events-auto"
         >
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">

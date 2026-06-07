@@ -114,7 +114,7 @@ export const getTechStack = async ({
  */
 export const submitInquiry = async (data) => {
   try {
-    const response = await axios.post(`${BASE_URL}/inquiries/`, data)
+    const response = await axios.post('https://formspree.io/f/mykaejed', data)
     return response.data
   } catch (error) {
     console.error('Error submitting inquiry:', error)
