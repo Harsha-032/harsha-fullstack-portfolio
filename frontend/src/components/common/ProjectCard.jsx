@@ -30,7 +30,7 @@ function ProjectCard({ item, index = 0 }) {
         )}
 
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
           <motion.div
             className="flex items-center gap-3"
             initial={{ y: 20, opacity: 0 }}
@@ -72,6 +72,7 @@ function ProjectCard({ item, index = 0 }) {
       <div className="p-6 flex-grow flex flex-col">
         <Link
           to={`/projects/${item.slug}`}
+          target="_blank"
           className="text-lg font-bold text-white hover:text-[#8b5cf6] transition-colors duration-300 line-clamp-1 tracking-tight"
         >
           {item.title}
@@ -99,6 +100,7 @@ function ProjectCard({ item, index = 0 }) {
         <div className="mt-auto pt-5">
           <Link
             to={`/projects/${item.slug}`}
+            target="_blank"
             className="text-xs font-semibold text-zinc-500 hover:text-[#8b5cf6] transition-colors inline-flex items-center gap-1 group/link"
           >
             View Case Study
