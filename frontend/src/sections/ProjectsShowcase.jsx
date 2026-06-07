@@ -86,7 +86,7 @@ export default function ProjectsShowcase({ projects = [] }) {
                 </div>
 
                 {/* Hover Overlay Buttons */}
-                <div className="absolute bottom-4 left-4 z-30 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <div className="absolute bottom-4 left-4 z-30 flex items-center gap-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
                   <a
                     href={project.live_url || "#"}
                     target="_blank"
