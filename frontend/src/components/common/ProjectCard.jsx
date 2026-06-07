@@ -31,12 +31,7 @@ function ProjectCard({ item, index = 0 }) {
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
-          <motion.div
-            className="flex items-center gap-3"
-            initial={{ y: 20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
+          <div className="flex items-center gap-3 translate-y-0 transition-transform duration-500 lg:translate-y-4 lg:group-hover:translate-y-0">
             {item.github_url && (
               <a
                 href={item.github_url}
@@ -57,7 +52,7 @@ function ProjectCard({ item, index = 0 }) {
                 Live Demo
               </a>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Featured badge */}
