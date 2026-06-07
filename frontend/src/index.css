@@ -27,9 +27,13 @@ html, body {
   margin: 0;
   padding: 0;
   background-color: #000;
-  overscroll-behavior: none;
+  width: 100%;
+}
+
+#root {
   overflow-x: hidden;
   width: 100%;
+  position: relative;
 }
 
 @keyframes float {
