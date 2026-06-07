@@ -265,6 +265,7 @@ CLOUDINARY_STORAGE = {
 # Backward compatibility for django-cloudinary-storage in Django 5+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MANIFEST_STRICT = False
 
 STORAGES = {
     "default": {
