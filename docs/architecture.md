@@ -2,139 +2,118 @@
 
 ## Project Purpose
 
-The project is a portfolio application used as a learning platform for full-stack software engineering.
+The project is a professional-grade full-stack portfolio application designed to showcase engineering skills by using real-world architectural patterns:
 
-The goal is not only to display portfolio content. The deeper goal is to build the project like a real product:
+- **Strict Responsibility Separation**: A decoupling of data storage, serialization, and presentation.
+- **Modular Django Domains**: Rather than a single massive app, features are isolated into clean, single-responsibility modules.
+- **API Contracts**: Dynamically generated OpenAPI 3.0 schemas and interactive Swagger UI rather than manual docs.
+- **Polished Frontend Presentation**: A highly interactive React application utilizing WebGL, Framer Motion, and robust asynchronous data handling (loading, error, and empty states).
 
-- separate backend and frontend responsibilities
-- keep APIs documented and testable
-- use modular Django apps
-- keep React UI organized by sections, components, and services
-- generate OpenAPI schema and Swagger documentation from the backend
+---
 
 ## Repository Layout
 
 ```text
 harsha-fullstack-portfolio/
-├── backend/
-│   ├── apps/
-│   │   ├── portfolio_items/
-│   │   ├── tech_stack/
-│   │   ├── profiles/
-│   │   ├── work_history/
-│   │   ├── academics/
-│   │   └── inquiries/
-│   ├── portfolio/
-│   ├── media/
+├── backend/                  # Django REST Framework application
+│   ├── apps/                 # Domain-Specific Applications
+│   │   ├── portfolio_items/  # [Active] Projects data and filtering APIs
+│   │   ├── tech_stack/       # [Active] Technology stack inventory APIs
+│   │   ├── profiles/         # [Active] About bio and resume files APIs
+│   │   ├── experiences/      # [Active] Career history timeline APIs
+│   │   ├── social_links/     # [Active] Social link directory APIs
+│   │   ├── inquiries/        # [Active] Contact message receiver APIs
+│   │   ├── work_history/     # [Skeleton] Placeholder
+│   │   └── academics/        # [Skeleton] Placeholder
+│   ├── portfolio/            # Core settings, URL routing, and WSGI/ASGI configs
+│   ├── media/                # Local media files (development override)
+│   ├── staticfiles/          # Collected static assets (for production serving)
 │   └── manage.py
-├── frontend/
+├── frontend/                 # React & Vite client
 │   ├── src/
-│   │   ├── components/
-│   │   ├── sections/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   └── utils/
+│   │   ├── components/       # Core UI and canvas components
+│   │   │   ├── canvas/       # WebGL particles, custom shaders, and scenes
+│   │   │   └── common/       # Cursor trackers, Navbar, and Terminals
+│   │   ├── sections/         # Landing page modular screen sections
+│   │   ├── services/         # Axios API connection endpoints
+│   │   ├── hooks/            # Custom utility hooks (theme, media queries)
+│   │   └── utils/            # Helper functions for URL resolution and animation
 │   └── package.json
-└── docs/
+└── docs/                     # System design and developer guides
 ```
+
+---
 
 ## Backend Architecture
 
-The backend uses Django and Django REST Framework.
+The Django backend is structured into modular applications to separate concerns and ensure high maintainability:
 
-The code is organized into domain apps instead of one large Django app:
+1. **`portfolio_items`**: Handles data for portfolio projects. Supports search, sorting, and cursor-like featured project filters. Uses CKEditor for rich-text HTML descriptions.
+2. **`tech_stack`**: Manages developer skills, categorization (frontend, backend, cloud, etc.), sorting order, and icon mapping.
+3. **`profiles`**: Exposes personal bio details, current location, email address, avatar photo, and resume documents.
+4. **`experiences`**: Stores professional roles, employment type categorization, start/end dates, and text descriptions of responsibilities.
+5. **`social_links`**: Tracks social handles, ordering, and profile links.
+6. **`inquiries`**: Receptive API that processes contact message payloads.
 
-- `portfolio_items`: project data and project API
-- `tech_stack`: skills and technology API
-- `profiles`: planned profile/about data
-- `work_history`: planned experience data
-- `academics`: planned education data
-- `inquiries`: planned contact form submissions
-
-Implemented backend flow:
-
+### Standard Backend Request Flow
 ```text
-Model
-→ Serializer
-→ API View
-→ App URL
-→ Project URL
-→ Frontend service
+HTTP Client Request
+  → django.middleware (Security, CORS, Session)
+  → urlconf (portfolio.urls)
+  → app urls (e.g. apps.portfolio_items.urls)
+  → drf view (e.g. generics.ListAPIView)
+  → serializer (validates and formats payload)
+  → django models (fetches from Neon Postgres database)
+  → HTTP Response
 ```
+
+---
 
 ## Frontend Architecture
 
-The frontend uses React, Vite, Tailwind CSS, and Axios.
+The frontend is a single-page application (SPA) built using React, Vite, and Tailwind CSS. The design system is highly interactive, pulling dynamic data from the backend APIs on load.
 
-Main responsibilities:
+### Core Architecture Layers:
+- **Presentation Section Layer (`src/sections/`)**: Large, full-screen components containing layouts for About, Experience, Projects, Skills, and Contact.
+- **Reusable Component Layer (`src/components/`)**: Functional UI items such as the terminal modal simulator, smooth scroll wrappers, and custom cursor trackers.
+- **WebGL Canvas Layer (`src/components/canvas/` & `src/components/Landscape3D.jsx`)**: Renders reactive Three.js environments (particle structures, abstract terrains) synchronized with the scroll progress to create a high-end visual experience.
+- **Service Layer (`src/services/portfolioApi.js`)**: An Axios-based API client that maps to the backend API endpoints. It resolves environment-specific API hosts via `import.meta.env.VITE_API_BASE_URL`.
 
-- `App.jsx`: orchestration, API state, loading/error state
-- `sections/`: page-level sections such as hero, projects, skills
-- `components/common/`: reusable UI pieces like cards and navigation
-- `services/`: API communication layer
-
-Current frontend data flow:
-
+### Frontend Data Binding Layout
 ```text
 portfolioApi.js
-→ App.jsx state
-→ ProjectsSection / SkillsSection
-→ ProjectCard / skill UI
+  → App.jsx (useApi hook manages loading, error, and resolved data)
+  → Section Components (Hero, About, Experience, Skills, Projects, Contact)
+  → Child UI Cards & Layouts
 ```
 
-## API Design Principles
+---
 
-Current backend API decisions:
+## API Design & Schema Setup
 
-- list APIs use DRF generic views
-- project list API is paginated
-- list APIs support filtering/search/ordering where useful
-- serializers enforce API-level validation
-- model validators enforce domain-level data rules
-- OpenAPI schema generation is handled by drf-spectacular
-- Swagger docs are available at `/api/docs/`
+The backend follows RESTful API design principles:
+- **Read-Only List views**: Use DRF generic views (`generics.ListAPIView`) with pagination enabled for large collections (e.g., portfolio items).
+- **Serializer-Driven Validation**: All input validation is handled at the serializer level (e.g., rejecting empty rich text or out-of-range proficiency ratings).
+- **Auto-Generating Contracts**: `drf-spectacular` is configured as the default schema class. It dynamically reads DRF views, query parameter annotations, and serializer validators to build an OpenAPI 3.0 specification.
+- **API Documentation**: The OpenAPI schema is served at `/api/schema/` and is rendered visually via Swagger UI at `/api/docs/`.
 
-## API Documentation Architecture
+---
 
-API documentation is generated from DRF views and serializers using `drf-spectacular`.
+## Database & Media Infrastructure
 
-The setup has three parts:
+### Database Topology:
+- **Neon Serverless PostgreSQL**: The main database used for local development and production environments. It is connected via standard PG environment variables (`PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`) loaded from the `.env` file.
+- **SQLite Database**: A separate SQLite database (`db.sqlite3`) is strictly reserved for running automated testing (`python manage.py test`). This keeps test mutations isolated from the local database instance and guarantees rapid test execution.
 
-- `drf_spectacular` is installed as a Django app.
-- DRF uses `drf_spectacular.openapi.AutoSchema` as the default schema class.
-- Project URLs expose `/api/schema/` and `/api/docs/`.
+### Static & Media File Pipeline:
+- **Cloudinary Storage**: Integrated via `django-cloudinary-storage` for production deployments. Avatars, resumes, and project screenshots uploaded via the Django Admin panel are directly stored on Cloudinary.
+- **WhiteNoise Middleware**: Handles high-performance static asset hosting (compiled CSS/JS, admin UI assets) directly within the Django server process in production, removing the need for an external Nginx static proxy.
+- **URL Resolution Helper**: The frontend uses `resolveImageUrl` (`src/utils/helpers.js`) to seamlessly handle different image URLs (e.g., parsing Cloudinary media paths, local fallback paths, or external image links).
 
-This matters because the API documentation is generated from the backend contract instead of being manually maintained in a separate document.
+---
 
-```text
-DRF views and serializers
-→ drf-spectacular schema generation
-→ /api/schema/
-→ /api/docs/
-```
+## Design and Technical Tradeoffs
 
-## Validation Layers
-
-Validation belongs at the correct layer:
-
-- Model validation protects domain/data rules.
-- Serializer validation protects API input/output contracts.
-- Tests protect behavior from accidental regression.
-
-Example:
-
-- `TechStack.proficiency` has a model-level max validator.
-- `TechStackSerializer` also rejects values greater than `100`.
-- Tests verify serializer behavior.
-
-## Current Tradeoffs
-
-- SQLite is used for local development.
-- `SECRET_KEY`, `DEBUG`, and API base URLs are still development-oriented.
-- Authentication is not implemented yet.
-- `ProjectCard` renders trusted rich text HTML from CKEditor content.
-- Some apps are scaffolded but not implemented yet.
-
-These are acceptable for the current learning stage, but they are known production hardening items.
+1. **Rich Text Injection**: The portfolio description fields use CKEditor HTML strings. These are rendered in the React frontend using `dangerouslySetInnerHTML`. To mitigate XSS risks, custom Django serializers strip malicious script elements, and the editor is restricted to the Django admin panel.
+2. **Formspree vs Inquiries API**: Currently, the contact form submits to Formspree for rapid prototyping. However, an inquiries Django app is already implemented to store inquiries in the database. A future roadmap task is migrating the frontend to target the local inquiries endpoint.
+3. **No Frontend Auth**: The portfolio data is read-only for public visitors, and updates are handled solely via the secure Django Admin dashboard. This eliminates the complexity of JWT/Session authentication on the public React frontend.
