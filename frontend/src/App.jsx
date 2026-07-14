@@ -175,203 +175,200 @@ export default function App() {
       {/* Cinematic Load Overlay Gate */}
       <Loading onComplete={() => setIsLoading(false)} />
 
-      {!isLoading && (
-        <>
-          <CustomCursor />
-          <SmoothScroll />
-          
-          {/* Unified Dynamic Cinematic 3D WebGL Flight Background */}
-          <Landscape3D scrollProgress={scrollYProgress} />
-          <div className="fixed inset-0 bg-transparent pointer-events-none z-[1]" />
+      {/* Homepage UI - Rendered immediately underneath the glassmorphic loader */}
+      <CustomCursor />
+      <SmoothScroll />
+      
+      {/* Unified Dynamic Cinematic 3D WebGL Flight Background */}
+      <Landscape3D scrollProgress={scrollYProgress} />
+      <div className="fixed inset-0 bg-transparent pointer-events-none z-[1]" />
 
-          {/* Top navigation container */}
-          <Navbar 
-            onLaunchApp={() => setIsDappOpen(true)} 
-            sections={listSections}
-            activeSection={activeSection}
-            onSectionClick={handleDotClick}
-          />
+      {/* Top navigation container */}
+      <Navbar 
+        onLaunchApp={() => setIsDappOpen(true)} 
+        sections={listSections}
+        activeSection={activeSection}
+        onSectionClick={handleDotClick}
+      />
 
-          {/* Left Vertical Circles Dot Navigator */}
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
-            }}
-            className="hidden md:flex fixed left-6 md:left-10 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-5 select-none pointer-events-auto"
-          >
-            {listSections.map((sec) => {
-              const isActive = activeSection === sec.id;
-              return (
-                <motion.button
-                  key={sec.id}
-                  variants={{
-                    hidden: { opacity: 0, x: -20 },
-                    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  onClick={() => handleDotClick(sec.id)}
-                  className="relative group flex items-center justify-center focus:outline-none cursor-pointer w-5 h-5"
-                  title={sec.label}
-                >
-                  <div 
-                    className={`absolute w-3 h-3 rounded-full border-2 transition-all duration-300 ${
-                      isActive ? "border-transparent" : "border-white/35 group-hover:border-white/70"
-                    }`}
-                  />
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNavDot"
-                      className="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)] z-10"
-                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                    />
-                  )}
-                  <span className="absolute left-8 font-sans text-xs font-semibold tracking-widest uppercase text-white opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none translate-x-2 group-hover:translate-x-0 bg-black/40 px-3 py-1.5 rounded border border-white/10 backdrop-blur-md whitespace-nowrap">
-                    {sec.label}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </motion.div>
+      {/* Left Vertical Circles Dot Navigator */}
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+        }}
+        className="hidden md:flex fixed left-6 md:left-10 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-5 select-none pointer-events-auto"
+      >
+        {listSections.map((sec) => {
+          const isActive = activeSection === sec.id;
+          return (
+            <motion.button
+              key={sec.id}
+              variants={{
+                hidden: { opacity: 0, x: -20 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }
+              }}
+              onClick={() => handleDotClick(sec.id)}
+              className="relative group flex items-center justify-center focus:outline-none cursor-pointer w-5 h-5"
+              title={sec.label}
+            >
+              <div 
+                className={`absolute w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                  isActive ? "border-transparent" : "border-white/35 group-hover:border-white/70"
+                }`}
+              />
+              {isActive && (
+                <motion.div
+                  layoutId="activeNavDot"
+                  className="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)] z-10"
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                />
+              )}
+              <span className="absolute left-8 font-sans text-xs font-semibold tracking-widest uppercase text-white opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none translate-x-2 group-hover:translate-x-0 bg-black/40 px-3 py-1.5 rounded border border-white/10 backdrop-blur-md whitespace-nowrap">
+                {sec.label}
+              </span>
+            </motion.button>
+          );
+        })}
+      </motion.div>
 
-          {/* Core Interactive Scrolling Layout Vector Matrix */}
-          <motion.main
+      {/* Core Interactive Scrolling Layout Vector Matrix */}
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 w-full"
+      >
+        <Hero profile={profile} />
+        <About profile={profile} />
+        <Experience experiences={experiences} />
+        <Skills skills={skills} />
+        <Projects projects={projects} />
+        <Contact profile={profile} socialLinks={socialLinks} />
+      </motion.main>
+
+      {/* Bottom Scroll Progress Bar */}
+      <motion.div 
+        className="fixed bottom-0 left-0 w-screen h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
+        style={{ 
+          scaleX: adjustedScrollProgress,
+          backgroundColor: activeTheme.sky.start || 'white',
+          boxShadow: `0 0 10px ${activeTheme.sky.start || 'white'}`
+        }}
+      />
+
+      {/* INTERACTIVE DEVELOPER CONSOLE TERMINAL SIMULATOR MODAL */}
+      <AnimatePresence>
+        {isDappOpen && (
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="relative z-10 w-full"
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
           >
-            <Hero profile={profile} />
-            <About profile={profile} />
-            <Experience experiences={experiences} />
-            <Skills skills={skills} />
-            <Projects projects={projects} />
-            <Contact profile={profile} socialLinks={socialLinks} />
-          </motion.main>
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="relative w-full max-w-lg rounded-3xl border border-purple-500/25 bg-neutral-950 p-6 sm:p-8 text-white shadow-2xl overflow-hidden font-mono"
+            >
+              {/* Glowing core effect */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
 
-          {/* Bottom Scroll Progress Bar */}
-          <motion.div 
-            className="fixed bottom-0 left-0 w-screen h-1 sm:h-1.5 z-40 origin-left pointer-events-none"
-            style={{ 
-              scaleX: adjustedScrollProgress,
-              backgroundColor: activeTheme.sky.start || 'white',
-              boxShadow: `0 0 10px ${activeTheme.sky.start || 'white'}`
-            }}
-          />
-
-          {/* INTERACTIVE DEVELOPER CONSOLE TERMINAL SIMULATOR MODAL */}
-          <AnimatePresence>
-            {isDappOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
-              >
-                <motion.div
-                  initial={{ scale: 0.95, y: 15 }}
-                  animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.95, y: 15 }}
-                  className="relative w-full max-w-lg rounded-3xl border border-purple-500/25 bg-neutral-950 p-6 sm:p-8 text-white shadow-2xl overflow-hidden font-mono"
+              {/* Header Row */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 bg-white/10 border border-white/30 rounded flex items-center justify-center rotate-45 ${activeTheme.ui.accent}`}>
+                    <Flame className="w-4 h-4 -rotate-45" />
+                  </div>
+                  <div className="text-left font-mono">
+                    <h3 className="text-sm font-bold text-white tracking-tight">hc_terminal_console</h3>
+                    <span className={`text-[9px] uppercase tracking-wider block ${activeTheme.ui.accent}`}>SECURE SSH NODE // VER 2.4</span>
+                  </div>
+                </div>
+                
+                {/* Close Trigger */}
+                <button
+                  onClick={() => {
+                    audio.playTerminalClick();
+                    setIsDappOpen(false);
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
                 >
-                  {/* Glowing core effect */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-                  {/* Header Row */}
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-7 h-7 bg-white/10 border border-white/30 rounded flex items-center justify-center rotate-45 ${activeTheme.ui.accent}`}>
-                        <Flame className="w-4 h-4 -rotate-45" />
-                      </div>
-                      <div className="text-left font-mono">
-                        <h3 className="text-sm font-bold text-white tracking-tight">hc_terminal_console</h3>
-                        <span className={`text-[9px] uppercase tracking-wider block ${activeTheme.ui.accent}`}>SECURE SSH NODE // VER 2.4</span>
-                      </div>
-                    </div>
-                    
-                    {/* Close Trigger */}
+              {/* Commands / suggestion chips */}
+              <div className="mb-4">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-2 text-left">SUGGESTED FILTERS / SHORTCUTS:</span>
+                <div className="flex flex-wrap gap-1.5 justify-start">
+                  {["help", "about", "skills", "projects", "contact", "clear"].map((cmd) => (
                     <button
-                      onClick={() => {
-                        audio.playTerminalClick();
-                        setIsDappOpen(false);
-                      }}
-                      className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                      key={cmd}
+                      onClick={() => handleTerminalSubmit(cmd)}
+                      className={`px-2.5 py-1 rounded bg-white/5 border border-white/10 text-[9px] hover:bg-white/10 hover:border-white/30 transition-all font-mono lowercase cursor-pointer ${activeTheme.ui.accent}`}
                     >
-                      <X className="w-4 h-4" />
+                      {cmd}()
                     </button>
-                  </div>
+                  ))}
+                </div>
+              </div>
 
-                  {/* Commands / suggestion chips */}
-                  <div className="mb-4">
-                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-2 text-left">SUGGESTED FILTERS / SHORTCUTS:</span>
-                    <div className="flex flex-wrap gap-1.5 justify-start">
-                      {["help", "about", "skills", "projects", "contact", "clear"].map((cmd) => (
-                        <button
-                          key={cmd}
-                          onClick={() => handleTerminalSubmit(cmd)}
-                          className={`px-2.5 py-1 rounded bg-white/5 border border-white/10 text-[9px] hover:bg-white/10 hover:border-white/30 transition-all font-mono lowercase cursor-pointer ${activeTheme.ui.accent}`}
-                        >
-                          {cmd}()
-                        </button>
-                      ))}
+              {/* Output Log stream */}
+              <div className="h-60 rounded-xl bg-black/60 border border-white/5 p-4 overflow-y-auto space-y-2 text-left text-xs mb-4 scrollbar-thin scrollbar-thumb-zinc-800">
+                {terminalLogs.map((log, index) => {
+                  const isInput = log.startsWith("hc_guest@root:");
+                  return (
+                    <div 
+                      key={index} 
+                      className={`${
+                        isInput ? `${activeTheme.ui.accent} font-semibold` : "text-zinc-300 leading-relaxed pl-2 border-l border-white/5"
+                      }`}
+                    >
+                      {isInput ? log : <TypewriterText text={log} delay={10} />}
                     </div>
-                  </div>
+                  );
+                })}
+                <div ref={logsEndRef} />
+              </div>
 
-                  {/* Output Log stream */}
-                  <div className="h-60 rounded-xl bg-black/60 border border-white/5 p-4 overflow-y-auto space-y-2 text-left text-xs mb-4 scrollbar-thin scrollbar-thumb-zinc-800">
-                    {terminalLogs.map((log, index) => {
-                      const isInput = log.startsWith("hc_guest@root:");
-                      return (
-                        <div 
-                          key={index} 
-                          className={`${
-                            isInput ? `${activeTheme.ui.accent} font-semibold` : "text-zinc-300 leading-relaxed pl-2 border-l border-white/5"
-                          }`}
-                        >
-                          {isInput ? log : <TypewriterText text={log} delay={10} />}
-                        </div>
-                      );
-                    })}
-                    <div ref={logsEndRef} />
-                  </div>
+              {/* Input line field form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleTerminalSubmit();
+                }}
+                className={`flex items-center gap-1.5 p-1 bg-white/[0.02] border border-white/10 rounded-2xl ${activeTheme.ui.borderFocus} transition-all`}
+              >
+                <span className={`${activeTheme.ui.accent} pl-3 font-semibold font-mono text-xs select-none`}>hc_guest@root:~$</span>
+                <input
+                  type="text"
+                  value={terminalInput}
+                  onChange={(e) => setTerminalInput(e.target.value)}
+                  placeholder="Type info command..."
+                  className="bg-transparent border-none outline-none font-mono text-xs flex-1 text-white p-2 min-w-0"
+                />
+                <button
+                  type="submit"
+                  className={`px-4 py-2 rounded-xl text-black text-[10px] uppercase font-bold tracking-wider hover:brightness-110 active:scale-95 transition-all cursor-pointer font-sans`}
+                  style={{ backgroundColor: activeTheme.sky.start }}
+                >
+                  EXECUTE
+                </button>
+              </form>
 
-                  {/* Input line field form */}
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleTerminalSubmit();
-                    }}
-                    className={`flex items-center gap-1.5 p-1 bg-white/[0.02] border border-white/10 rounded-2xl ${activeTheme.ui.borderFocus} transition-all`}
-                  >
-                    <span className={`${activeTheme.ui.accent} pl-3 font-semibold font-mono text-xs select-none`}>hc_guest@root:~$</span>
-                    <input
-                      type="text"
-                      value={terminalInput}
-                      onChange={(e) => setTerminalInput(e.target.value)}
-                      placeholder="Type info command..."
-                      className="bg-transparent border-none outline-none font-mono text-xs flex-1 text-white p-2 min-w-0"
-                    />
-                    <button
-                      type="submit"
-                      className={`px-4 py-2 rounded-xl text-black text-[10px] uppercase font-bold tracking-wider hover:brightness-110 active:scale-95 transition-all cursor-pointer font-sans`}
-                      style={{ backgroundColor: activeTheme.sky.start }}
-                    >
-                      EXECUTE
-                    </button>
-                  </form>
+              {/* Footer node */}
+              <div className="text-center font-mono text-[8px] text-white/15 mt-5 border-t border-white/5 pt-3 uppercase tracking-widest">
+                CONNECTED VIA STANDALONE SANDBOX ENVIRONMENT // HOST ROOT
+              </div>
 
-                  {/* Footer node */}
-                  <div className="text-center font-mono text-[8px] text-white/15 mt-5 border-t border-white/5 pt-3 uppercase tracking-widest">
-                    CONNECTED VIA STANDALONE SANDBOX ENVIRONMENT // HOST ROOT
-                  </div>
-
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
