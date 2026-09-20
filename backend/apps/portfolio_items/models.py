@@ -32,7 +32,7 @@ class PortfolioItem(models.Model):
     )
 
     github_url = models.URLField(
-        blank=False
+        blank=True
     )
 
     live_url = models.URLField(
